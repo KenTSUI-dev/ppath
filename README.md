@@ -10,14 +10,14 @@
 
 ### Option 1: Install into a New Conda Environment
 
-### 1. Clone the Repository
+1. Clone the Repository
 
 ```bash
 git clone <repository_url>
 cd ppath
 ```
 
-### 2. Set up the Environment
+2. Set up the Environment
 
 It is recommended to use **Conda** to handle dependencies like `netCDF4` and `gdal/pyproj`.
 
@@ -29,7 +29,7 @@ conda env create -f environment.yml --prune
 conda activate ppath
 ```
 
-### 3. Install the Package
+3. Install the Package
 
 Once the environment is active and dependencies are installed, install the package itself:
 
