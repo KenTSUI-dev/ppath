@@ -52,7 +52,7 @@ If you already have a working Conda environment and want to add `ppath` to it, f
     This installs the required libraries listed in `environment.yml` into your current environment.
     
     ```bash
-    conda env update --file environment.yml --prune
+    conda env update --file environment.yml --prune -n my_env
     ```
     
 3. **Install the package:**
@@ -86,8 +86,6 @@ ppath cmaq examples/cmaq_cfg.json
 ```
 
 ---
-
-## Configuration File Structure
 
 ## Configuration File Structure
 
