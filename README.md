@@ -10,56 +10,38 @@
 
 ### Option 1: Install into a New Conda Environment
 
-1. Clone the Repository
+1. **Clone the Repository:**
 
-```bash
-git clone <repository_url>
-cd ppath
-```
+   ```bash
+   git clone <repository_url>
+   cd ppath
+   ```
 
-2. Set up the Environment
+2. **Set up the Environment and Install the Package:**
 
-It is recommended to use **Conda** to handle dependencies like `netCDF4` and `gdal/pyproj`.
+   ```bash
+   # Create the environment from the provided file
+   conda env create -f environment.yml --prune
+   
+   # Activate the environment
+   conda activate ppath
+   ```
 
-```bash
-# Create the environment from the provided file
-conda env create -f environment.yml --prune
-
-# Activate the environment
-conda activate ppath
-```
-
-3. Install the Package
-
-Once the environment is active and dependencies are installed, install the package itself:
-
-```bash
-pip install .
-```
 
 ### Option 2: Install into an Existing Conda Environment
 
 If you already have a working Conda environment and want to add `ppath` to it, follow these steps:
 
-1. **Activate your environment:**
-    
-    ```bash
-    conda activate my_env
-    ```
-    
-2. **Update dependencies:**
-    
-    This installs the required libraries listed in `environment.yml` into your current environment.
+
+1. **Update dependencies and unstall the package to your environment:**
     
     ```bash
     conda env update --file environment.yml --prune -n my_env
+   
+    # Activate the environment
+    conda activate my_env
     ```
-    
-3. **Install the package:**
-    
-    ```bash
-    pip install .
-    ```
+
 
 ## Usage
 
@@ -68,6 +50,7 @@ Once installed, the tool can be run using the `ppath` command. You need to provi
 ### Syntax
 
 ```bash
+conda activate ppath # or my_env    
 ppath [mode] [config_path]
 ```
 
