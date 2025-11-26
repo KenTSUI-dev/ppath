@@ -1,0 +1,435 @@
+{
+  "source": [
+    {
+      "label": "WRF",
+      "input_nc": [
+"D:/temp/AQMD/20251124/Weather/W05109~F",
+"D:/temp/AQMD/20251124/Weather/W09UOU~F",
+"D:/temp/AQMD/20251124/Weather/W0CUML~6",
+"D:/temp/AQMD/20251124/Weather/W0I78I~K",
+"D:/temp/AQMD/20251124/Weather/W0IXPH~X",
+"D:/temp/AQMD/20251124/Weather/W0LOJL~U",
+"D:/temp/AQMD/20251124/Weather/W102E7~F",
+"D:/temp/AQMD/20251124/Weather/W2049N~7",
+"D:/temp/AQMD/20251124/Weather/W2U1YH~S",
+"D:/temp/AQMD/20251124/Weather/W2ZRPQ~N",
+"D:/temp/AQMD/20251124/Weather/W32V9K~3",
+"D:/temp/AQMD/20251124/Weather/W3FKTT~8",
+"D:/temp/AQMD/20251124/Weather/W3HEQB~7",
+"D:/temp/AQMD/20251124/Weather/W3U50R~S",
+"D:/temp/AQMD/20251124/Weather/W4FM3M~2",
+"D:/temp/AQMD/20251124/Weather/W4HXB2~Z",
+"D:/temp/AQMD/20251124/Weather/W4INQF~6",
+"D:/temp/AQMD/20251124/Weather/W4MJO8~U",
+"D:/temp/AQMD/20251124/Weather/W4N8RR~M",
+"D:/temp/AQMD/20251124/Weather/W4NY80~V",
+"D:/temp/AQMD/20251124/Weather/W4RPRZ~G",
+"D:/temp/AQMD/20251124/Weather/W4RT4Q~C",
+"D:/temp/AQMD/20251124/Weather/W4WKPC~Q",
+"D:/temp/AQMD/20251124/Weather/W4XR3M~C",
+"D:/temp/AQMD/20251124/Weather/W598LT~B",
+"D:/temp/AQMD/20251124/Weather/W5K66C~X",
+"D:/temp/AQMD/20251124/Weather/W5OSVI~M",
+"D:/temp/AQMD/20251124/Weather/W5QCQ3~R",
+"D:/temp/AQMD/20251124/Weather/W5RR1S~A",
+"D:/temp/AQMD/20251124/Weather/W5WF8X~A",
+"D:/temp/AQMD/20251124/Weather/W5XANF~0",
+"D:/temp/AQMD/20251124/Weather/W6DYC9~1",
+"D:/temp/AQMD/20251124/Weather/W6XR69~H",
+"D:/temp/AQMD/20251124/Weather/W71ODR~X",
+"D:/temp/AQMD/20251124/Weather/W7FLFY~7",
+"D:/temp/AQMD/20251124/Weather/W7R04H~1",
+"D:/temp/AQMD/20251124/Weather/W81I7E~8",
+"D:/temp/AQMD/20251124/Weather/W8BRBJ~E",
+"D:/temp/AQMD/20251124/Weather/W8DTBY~5",
+"D:/temp/AQMD/20251124/Weather/W8Z6YF~B",
+"D:/temp/AQMD/20251124/Weather/W91NDU~J",
+"D:/temp/AQMD/20251124/Weather/W9488L~F",
+"D:/temp/AQMD/20251124/Weather/W99V5Y~4",
+"D:/temp/AQMD/20251124/Weather/W9TOPQ~9",
+"D:/temp/AQMD/20251124/Weather/WA1HOQ~K",
+"D:/temp/AQMD/20251124/Weather/WBA515~Y",
+"D:/temp/AQMD/20251124/Weather/WBK3A9~S",
+"D:/temp/AQMD/20251124/Weather/WBXCYQ~X",
+"D:/temp/AQMD/20251124/Weather/WBZRSW~P",
+"D:/temp/AQMD/20251124/Weather/WCE5WQ~X",
+"D:/temp/AQMD/20251124/Weather/WCEQOF~Q",
+"D:/temp/AQMD/20251124/Weather/WCM9ZC~6",
+"D:/temp/AQMD/20251124/Weather/WD26AZ~L",
+"D:/temp/AQMD/20251124/Weather/WD6GPU~C",
+"D:/temp/AQMD/20251124/Weather/WDCL1C~I",
+"D:/temp/AQMD/20251124/Weather/WDDJ2C~H",
+"D:/temp/AQMD/20251124/Weather/WDE14J~O",
+"D:/temp/AQMD/20251124/Weather/WDJDPF~0",
+"D:/temp/AQMD/20251124/Weather/WDQAUX~5",
+"D:/temp/AQMD/20251124/Weather/WEBPLA~R",
+"D:/temp/AQMD/20251124/Weather/WEJEZ7~U",
+"D:/temp/AQMD/20251124/Weather/WF39DF~1",
+"D:/temp/AQMD/20251124/Weather/WFADZZ~X",
+"D:/temp/AQMD/20251124/Weather/WFPJHB~1",
+"D:/temp/AQMD/20251124/Weather/WG7V0O~T",
+"D:/temp/AQMD/20251124/Weather/WGFEBL~9",
+"D:/temp/AQMD/20251124/Weather/WGKGXR~E",
+"D:/temp/AQMD/20251124/Weather/WGTDR5~M",
+"D:/temp/AQMD/20251124/Weather/WH0T1Y~V",
+"D:/temp/AQMD/20251124/Weather/WH5H9D~P",
+"D:/temp/AQMD/20251124/Weather/WH76TI~J",
+"D:/temp/AQMD/20251124/Weather/WHH0RW~8",
+"D:/temp/AQMD/20251124/Weather/WHW2ZW~6",
+"D:/temp/AQMD/20251124/Weather/WI0TLT~4",
+"D:/temp/AQMD/20251124/Weather/WI33S6~K",
+"D:/temp/AQMD/20251124/Weather/WIDMCK~1",
+"D:/temp/AQMD/20251124/Weather/WJ3FZA~T",
+"D:/temp/AQMD/20251124/Weather/WJ5HL9~Q",
+"D:/temp/AQMD/20251124/Weather/WJBQ0T~2",
+"D:/temp/AQMD/20251124/Weather/WJLA8Z~J",
+"D:/temp/AQMD/20251124/Weather/WJMUUH~J",
+"D:/temp/AQMD/20251124/Weather/WJSSWH~S",
+"D:/temp/AQMD/20251124/Weather/WK64SI~M",
+"D:/temp/AQMD/20251124/Weather/WK770F~K",
+"D:/temp/AQMD/20251124/Weather/WK7J92~N",
+"D:/temp/AQMD/20251124/Weather/WK81MH~1",
+"D:/temp/AQMD/20251124/Weather/WKFS0A~H",
+"D:/temp/AQMD/20251124/Weather/WKNK9U~C",
+"D:/temp/AQMD/20251124/Weather/WKNUYZ~A",
+"D:/temp/AQMD/20251124/Weather/WKWYQD~K",
+"D:/temp/AQMD/20251124/Weather/WKXF75~R",
+"D:/temp/AQMD/20251124/Weather/WL82TA~C",
+"D:/temp/AQMD/20251124/Weather/WL9NL3~H",
+"D:/temp/AQMD/20251124/Weather/WLDXWR~Q",
+"D:/temp/AQMD/20251124/Weather/WLJBYL~S",
+"D:/temp/AQMD/20251124/Weather/WLP7C5~9",
+"D:/temp/AQMD/20251124/Weather/WLRWYG~P",
+"D:/temp/AQMD/20251124/Weather/WM5P1Z~8",
+"D:/temp/AQMD/20251124/Weather/WMDAKX~V",
+"D:/temp/AQMD/20251124/Weather/WMH7SG~B",
+"D:/temp/AQMD/20251124/Weather/WMHYSC~P",
+"D:/temp/AQMD/20251124/Weather/WMVM4B~N",
+"D:/temp/AQMD/20251124/Weather/WN362O~4",
+"D:/temp/AQMD/20251124/Weather/WNBIGX~T",
+"D:/temp/AQMD/20251124/Weather/WNQBCO~J",
+"D:/temp/AQMD/20251124/Weather/WNTCQM~J",
+"D:/temp/AQMD/20251124/Weather/WNUSSC~V",
+"D:/temp/AQMD/20251124/Weather/WP6XQJ~3",
+"D:/temp/AQMD/20251124/Weather/WP7290~T",
+"D:/temp/AQMD/20251124/Weather/WP9IO6~V",
+"D:/temp/AQMD/20251124/Weather/WPHJQA~6",
+"D:/temp/AQMD/20251124/Weather/WPRLRY~Y",
+"D:/temp/AQMD/20251124/Weather/WPXNZJ~A",
+"D:/temp/AQMD/20251124/Weather/WPYF47~2",
+"D:/temp/AQMD/20251124/Weather/WQ2FP9~4",
+"D:/temp/AQMD/20251124/Weather/WQ679S~C",
+"D:/temp/AQMD/20251124/Weather/WQ8M41~O",
+"D:/temp/AQMD/20251124/Weather/WQLTLD~N",
+"D:/temp/AQMD/20251124/Weather/WQMBYS~1",
+"D:/temp/AQMD/20251124/Weather/WQMVHN~M",
+"D:/temp/AQMD/20251124/Weather/WR1OV4~9",
+"D:/temp/AQMD/20251124/Weather/WR3QQ5~6",
+"D:/temp/AQMD/20251124/Weather/WR70DD~5",
+"D:/temp/AQMD/20251124/Weather/WRSHBK~A",
+"D:/temp/AQMD/20251124/Weather/WRTIDK~U",
+"D:/temp/AQMD/20251124/Weather/WRVIYD~E",
+"D:/temp/AQMD/20251124/Weather/WS8T3V~K",
+"D:/temp/AQMD/20251124/Weather/WS9MM7~P",
+"D:/temp/AQMD/20251124/Weather/WSFWMN~K",
+"D:/temp/AQMD/20251124/Weather/WSW79I~Q",
+"D:/temp/AQMD/20251124/Weather/WT6HV0~7",
+"D:/temp/AQMD/20251124/Weather/WTDDNC~G",
+"D:/temp/AQMD/20251124/Weather/WTFIWE~U",
+"D:/temp/AQMD/20251124/Weather/WTID7B~H",
+"D:/temp/AQMD/20251124/Weather/WTP34L~B",
+"D:/temp/AQMD/20251124/Weather/WTWOGG~R",
+"D:/temp/AQMD/20251124/Weather/WTXPUT~I",
+"D:/temp/AQMD/20251124/Weather/WU6IEU~G",
+"D:/temp/AQMD/20251124/Weather/WUAZW1~C",
+"D:/temp/AQMD/20251124/Weather/WUB2ED~J",
+"D:/temp/AQMD/20251124/Weather/WUEJLQ~5",
+"D:/temp/AQMD/20251124/Weather/WUJKVW~9",
+"D:/temp/AQMD/20251124/Weather/WV1A3Q~J",
+"D:/temp/AQMD/20251124/Weather/WV4BQJ~N",
+"D:/temp/AQMD/20251124/Weather/WV5K5O~H",
+"D:/temp/AQMD/20251124/Weather/WV8TEM~Z",
+"D:/temp/AQMD/20251124/Weather/WVB424~8",
+"D:/temp/AQMD/20251124/Weather/WVB7EL~5",
+"D:/temp/AQMD/20251124/Weather/WVROEE~Y",
+"D:/temp/AQMD/20251124/Weather/WVXSMS~F",
+"D:/temp/AQMD/20251124/Weather/WW36ED~D",
+"D:/temp/AQMD/20251124/Weather/WW3IEK~V",
+"D:/temp/AQMD/20251124/Weather/WWL0O2~3",
+"D:/temp/AQMD/20251124/Weather/WWPSH3~K",
+"D:/temp/AQMD/20251124/Weather/WX0NF2~9",
+"D:/temp/AQMD/20251124/Weather/WXQ9CI~6",
+"D:/temp/AQMD/20251124/Weather/WXYLNY~N",
+"D:/temp/AQMD/20251124/Weather/WY0BE6~Y",
+"D:/temp/AQMD/20251124/Weather/WY37F7~A",
+"D:/temp/AQMD/20251124/Weather/WY3FIS~1",
+"D:/temp/AQMD/20251124/Weather/WYB5BH~4",
+"D:/temp/AQMD/20251124/Weather/WYOGHA~Q",
+"D:/temp/AQMD/20251124/Weather/WYOMBB~W",
+"D:/temp/AQMD/20251124/Weather/WYUPYS~W",
+"D:/temp/AQMD/20251124/Weather/WZ0UJ8~L",
+"D:/temp/AQMD/20251124/Weather/WZ4W6U~C",
+"D:/temp/AQMD/20251124/Weather/WZEREB~O",
+"D:/temp/AQMD/20251124/Weather/WZFS74~U",
+"D:/temp/AQMD/20251124/Weather/WZG8Y7~8"
+      ]
+    }
+  ],
+  "calc_var": [
+    {
+      "var": "actual_temperature",
+      "unit": "K",
+      "formula": "(WRF.T+300) * (((WRF.P+WRF.PB)/100000)**(287/1004))"
+    }
+  ],
+  "voxel_ouput": [
+    {
+      "output_nc": "D:/temp/AQMD/20251124_WRF_voxel.nc",
+      "selected_var": [
+        "U",
+        "V",
+        "actual_temperature"
+      ]
+    }
+  ],
+  "ts_ouput": [
+    {
+      "output_csv": "D:/temp/AQMD/20251124_WRF_stn.csv",
+      "selected_var": [
+        "U",
+        "V",
+        "actual_temperature"
+      ],
+      "station": [
+    {
+      "label": "Cape D' Aguilar Supersite Air Quality Monitoring Station",
+      "west_east": 139,
+      "south_north": 49,
+      "bottom_top": 0
+    },
+    {
+      "label": "Shing Kai Road near Tak Long Estate",
+      "west_east": 134,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Hong Kong Space Museum",
+      "west_east": 131,
+      "south_north": 59,
+      "bottom_top": 0
+    },
+    {
+      "label": "Avenue of Stars near Shangri-La",
+      "west_east": 131,
+      "south_north": 59,
+      "bottom_top": 0
+    },
+    {
+      "label": "Connaught Road Central",
+      "west_east": 130,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Canton Road near The Gateway Tower",
+      "west_east": 130,
+      "south_north": 59,
+      "bottom_top": 0
+    },
+    {
+      "label": "Canton Road near Ocean Centre",
+      "west_east": 131,
+      "south_north": 59,
+      "bottom_top": 0
+    },
+    {
+      "label": "ARQ - On Kin Road",
+      "west_east": 137,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "ARQ - On Hei Street",
+      "west_east": 137,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "ARQ - On Yu Road",
+      "west_east": 137,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Fenwick Pier Street",
+      "west_east": 131,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Harcourt Road near Tim Mei Avenue",
+      "west_east": 130,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Southern Air Quality Monitoring Station",
+      "west_east": 130,
+      "south_north": 53,
+      "bottom_top": 0
+    },
+    {
+      "label": "North Air Quality Monitoring Station",
+      "west_east": 126,
+      "south_north": 81,
+      "bottom_top": 0
+    },
+    {
+      "label": "Kwun Tong Air Quality Monitoring Station",
+      "west_east": 137,
+      "south_north": 60,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tseung Kwan O Air Quality Monitoring Station",
+      "west_east": 140,
+      "south_north": 61,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tuen Mun Air Quality Monitoring Station",
+      "west_east": 111,
+      "south_north": 69,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tung Chung Air Quality Monitoring Station",
+      "west_east": 108,
+      "south_north": 58,
+      "bottom_top": 0
+    },
+    {
+      "label": "Eastern Air Quality Monitoring Station",
+      "west_east": 136,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tap Mun Air Quality Monitoring Station",
+      "west_east": 150,
+      "south_north": 78,
+      "bottom_top": 0
+    },
+    {
+      "label": "Kwai Chung Air Quality Monitoring Station",
+      "west_east": 127,
+      "south_north": 65,
+      "bottom_top": 0
+    },
+    {
+      "label": "Yuen Long Air Quality Monitoring Station",
+      "west_east": 116,
+      "south_north": 75,
+      "bottom_top": 0
+    },
+    {
+      "label": "Sha Tin Air Quality Monitoring Station",
+      "west_east": 132,
+      "south_north": 68,
+      "bottom_top": 0
+    },
+    {
+      "label": "Sham Shui Po Air Quality Monitoring Station",
+      "west_east": 130,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tai Po Air Quality Monitoring Station",
+      "west_east": 130,
+      "south_north": 76,
+      "bottom_top": 0
+    },
+    {
+      "label": "Mong Kok Air Quality Monitoring Station",
+      "west_east": 130,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Central/Western Air Quality Monitoring Station",
+      "west_east": 128,
+      "south_north": 58,
+      "bottom_top": 0
+    },
+    {
+      "label": "Central Air Quality Monitoring Station",
+      "west_east": 129,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Causeway Bay Air Quality Monitoring Station",
+      "west_east": 132,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Tsuen Wan Air Quality Monitoring Station",
+      "west_east": 125,
+      "south_north": 67,
+      "bottom_top": 0
+    },
+    {
+      "label": "Kai Tak Sports Park",
+      "west_east": 133,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Central",
+      "west_east": 130,
+      "south_north": 58,
+      "bottom_top": 0
+    },
+    {
+      "label": "Victoria Park",
+      "west_east": 133,
+      "south_north": 57,
+      "bottom_top": 0
+    },
+    {
+      "label": "Mongkok",
+      "west_east": 131,
+      "south_north": 62,
+      "bottom_top": 0
+    },
+    {
+      "label": "Heung Yuen Wai",
+      "west_east": 129,
+      "south_north": 87,
+      "bottom_top": 0
+    },
+    {
+      "label": "Clear Water Bay",
+      "west_east": 140,
+      "south_north": 63,
+      "bottom_top": 0
+    },
+    {
+      "label": "Siu Lang Shui",
+      "west_east": 107,
+      "south_north": 67,
+      "bottom_top": 0
+    },
+    {
+      "label": "Cape D' Aguilar Supersite ",
+      "west_east": 139,
+      "south_north": 49,
+      "bottom_top": 0
+    }
+  ]
+    }
+  ]
+}

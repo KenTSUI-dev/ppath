@@ -1,0 +1,311 @@
+{
+  "source": [
+    {
+      "label": "ACONC",
+      "input_nc": [
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025328_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025329_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025329_04.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025329_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025330_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025330_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025331_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025331_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025332_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025332_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025333_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025333_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025334_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025334_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.ACONC.d04.2025335_00.ncf"
+      ]
+    },
+    {
+      "label": "APMDIAG",
+      "input_nc": [
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025328_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025329_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025329_04.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025329_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025330_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025330_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025331_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025331_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025332_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025332_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025333_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025333_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025334_00.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025334_16.ncf",
+"D:/temp/AQMD/20251124/Pollutant/CCTM.benchmark.APMDIAG.d04.2025335_00.ncf"
+      ]
+    }
+  ],
+  "calc_var": [
+    {
+      "var": "PM25_",
+      "unit": "ug/m3",
+      "formula": "(ACONC.ASO4I+ACONC.ANO3I+ACONC.ANH4I+ACONC.ANAI+ACONC.ACLI +ACONC.AECI+ACONC.ALVPO1I+ACONC.ASVPO1I+ACONC.ASVPO2I+ACONC.APOCI+ACONC.APNCOMI+ACONC.ALVOO1I+ACONC.ALVOO2I+ACONC.ASVOO1I+ACONC.ASVOO2I+ACONC.AOTHRI)*APMDIAG.PM25AT+(ACONC.ASO4J+ACONC.ANO3J+ACONC.ANH4J+ACONC.ANAJ+ACONC.ACLJ+ACONC.AECJ+ACONC.ALVPO1J+ACONC.ASVPO1J+ACONC.ASVPO2J+ACONC.APOCJ+ACONC.ASVPO3J+ACONC.AIVPO1J+ACONC.APNCOMJ+ACONC.AISO1J+ACONC.AISO2J+ACONC.AISO3J+ACONC.AMT1J+ACONC.AMT2J+ACONC.AMT3J+ACONC.AMT4J+ACONC.AMT5J+ACONC.AMT6J+ACONC.AMTNO3J+ACONC.AMTHYDJ+ACONC.AGLYJ+ACONC.ASQTJ+ACONC.AORGCJ+ACONC.AOLGBJ+ACONC.AOLGAJ+ACONC.ALVOO1J+ACONC.ALVOO2J+ACONC.ASVOO1J+ACONC.ASVOO2J+ACONC.ASVOO3J+ACONC.APCSOJ+ACONC.AAVB1J+ACONC.AAVB2J+ACONC.AAVB3J+ACONC.AAVB4J+ACONC.AOTHRJ+ACONC.AFEJ+ACONC.ASIJ+ACONC.ATIJ+ACONC.ACAJ+ACONC.AMGJ+ACONC.AMNJ+ACONC.AALJ+ACONC.AKJ)*APMDIAG.PM25AC+(ACONC.ASOIL+ACONC.ACORS+ACONC.ASEACAT+ACONC.ACLK+ACONC.ASO4K+ACONC.ANO3K+ACONC.ANH4K)*APMDIAG.PM25CO"
+    },
+    {
+      "var": "PM10_",
+      "unit": "ug/m3",
+      "formula": "(ACONC.ASO4I+ACONC.ANO3I+ACONC.ANH4I+ACONC.ANAI+ACONC.ACLI +ACONC.AECI+ACONC.ALVPO1I+ACONC.ASVPO1I+ACONC.ASVPO2I+ACONC.APOCI+ACONC.APNCOMI+ACONC.ALVOO1I+ACONC.ALVOO2I+ACONC.ASVOO1I+ACONC.ASVOO2I+ACONC.AOTHRI)*APMDIAG.PM10AT+(ACONC.ASO4J+ACONC.ANO3J+ACONC.ANH4J+ACONC.ANAJ+ACONC.ACLJ+ACONC.AECJ+ACONC.ALVPO1J+ACONC.ASVPO1J+ACONC.ASVPO2J+ACONC.APOCJ+ACONC.ASVPO3J+ACONC.AIVPO1J+ACONC.APNCOMJ+ACONC.AISO1J+ACONC.AISO2J+ACONC.AISO3J+ACONC.AMT1J+ACONC.AMT2J+ACONC.AMT3J+ACONC.AMT4J+ACONC.AMT5J+ACONC.AMT6J+ACONC.AMTNO3J+ACONC.AMTHYDJ+ACONC.AGLYJ+ACONC.ASQTJ+ACONC.AORGCJ+ACONC.AOLGBJ+ACONC.AOLGAJ+ACONC.ALVOO1J+ACONC.ALVOO2J+ACONC.ASVOO1J+ACONC.ASVOO2J+ACONC.ASVOO3J+ACONC.APCSOJ+ACONC.AAVB1J+ACONC.AAVB2J+ACONC.AAVB3J+ACONC.AAVB4J+ACONC.AOTHRJ+ACONC.AFEJ+ACONC.ASIJ+ACONC.ATIJ+ACONC.ACAJ+ACONC.AMGJ+ACONC.AMNJ+ACONC.AALJ+ACONC.AKJ)*APMDIAG.PM10AC+(ACONC.ASOIL+ACONC.ACORS+ACONC.ASEACAT+ACONC.ACLK+ACONC.ASO4K+ACONC.ANO3K+ACONC.ANH4K)*APMDIAG.PM10CO"
+    },
+    {
+      "var": "NO2_",
+      "unit": "ug/m3",
+      "formula": "ACONC.NO2*1880"
+    }
+  ],
+  "voxel_ouput": [
+    {
+      "output_nc": "D:/temp/AQMD/20251124_CCTM.benchmark_voxel.nc",
+      "selected_var": [
+        "PM25_",
+        "PM10_",
+        "NO2_"
+      ]
+    }
+  ],
+  "ts_ouput": [
+    {
+      "output_csv": "D:/temp/AQMD/20251124_CCTM.benchmark_stn.csv",
+      "selected_var": [
+        "PM25_",
+        "PM10_",
+        "NO2_"
+      ],
+      "station": [
+  {
+    "label": "Cape D' Aguilar Supersite Air Quality Monitoring Station",
+    "row": 21,
+    "col": 48,
+    "lay": 0
+  },
+  {
+    "label": "Shing Kai Road near Tak Long Estate",
+    "row": 34,
+    "col": 43,
+    "lay": 0
+  },
+  {
+    "label": "Hong Kong Space Museum",
+    "row": 30,
+    "col": 40,
+    "lay": 0
+  },
+  {
+    "label": "Avenue of Stars near Shangri-La",
+    "row": 31,
+    "col": 40,
+    "lay": 0
+  },
+  {
+    "label": "Connaught Road Central",
+    "row": 29,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Canton Road near The Gateway Tower",
+    "row": 31,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Canton Road near Ocean Centre",
+    "row": 31,
+    "col": 40,
+    "lay": 0
+  },
+  {
+    "label": "ARQ - On Kin Road",
+    "row": 34,
+    "col": 46,
+    "lay": 0
+  },
+  {
+    "label": "ARQ - On Hei Street",
+    "row": 34,
+    "col": 46,
+    "lay": 0
+  },
+  {
+    "label": "ARQ - On Yu Road",
+    "row": 33,
+    "col": 46,
+    "lay": 0
+  },
+  {
+    "label": "Fenwick Pier Street",
+    "row": 29,
+    "col": 40,
+    "lay": 0
+  },
+  {
+    "label": "Harcourt Road near Tim Mei Avenue",
+    "row": 29,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Southern Air Quality Monitoring Station",
+    "row": 25,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "North Air Quality Monitoring Station",
+    "row": 53,
+    "col": 35,
+    "lay": 0
+  },
+  {
+    "label": "Kwun Tong Air Quality Monitoring Station",
+    "row": 32,
+    "col": 46,
+    "lay": 0
+  },
+  {
+    "label": "Tseung Kwan O Air Quality Monitoring Station",
+    "row": 33,
+    "col": 49,
+    "lay": 0
+  },
+  {
+    "label": "Tuen Mun Air Quality Monitoring Station",
+    "row": 41,
+    "col": 20,
+    "lay": 0
+  },
+  {
+    "label": "Tung Chung Air Quality Monitoring Station",
+    "row": 30,
+    "col": 17,
+    "lay": 0
+  },
+  {
+    "label": "Eastern Air Quality Monitoring Station",
+    "row": 29,
+    "col": 45,
+    "lay": 0
+  },
+  {
+    "label": "Tap Mun Air Quality Monitoring Station",
+    "row": 50,
+    "col": 59,
+    "lay": 0
+  },
+  {
+    "label": "Kwai Chung Air Quality Monitoring Station",
+    "row": 37,
+    "col": 36,
+    "lay": 0
+  },
+  {
+    "label": "Yuen Long Air Quality Monitoring Station",
+    "row": 47,
+    "col": 25,
+    "lay": 0
+  },
+  {
+    "label": "Sha Tin Air Quality Monitoring Station",
+    "row": 39,
+    "col": 41,
+    "lay": 0
+  },
+  {
+    "label": "Sham Shui Po Air Quality Monitoring Station",
+    "row": 34,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Tai Po Air Quality Monitoring Station",
+    "row": 48,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Mong Kok Air Quality Monitoring Station",
+    "row": 34,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Central/Western Air Quality Monitoring Station",
+    "row": 29,
+    "col": 37,
+    "lay": 0
+  },
+  {
+    "label": "Central Air Quality Monitoring Station",
+    "row": 29,
+    "col": 38,
+    "lay": 0
+  },
+  {
+    "label": "Causeway Bay Air Quality Monitoring Station",
+    "row": 29,
+    "col": 41,
+    "lay": 0
+  },
+  {
+    "label": "Tsuen Wan Air Quality Monitoring Station",
+    "row": 39,
+    "col": 34,
+    "lay": 0
+  },
+  {
+    "label": "Kai Tak Sports Park",
+    "row": 34,
+    "col": 42,
+    "lay": 0
+  },
+  {
+    "label": "Central",
+    "row": 30,
+    "col": 39,
+    "lay": 0
+  },
+  {
+    "label": "Victoria Park",
+    "row": 29,
+    "col": 42,
+    "lay": 0
+  },
+  {
+    "label": "Mongkok",
+    "row": 34,
+    "col": 40,
+    "lay": 0
+  },
+  {
+    "label": "Heung Yuen Wai",
+    "row": 59,
+    "col": 38,
+    "lay": 0
+  },
+  {
+    "label": "Clear Water Bay",
+    "row": 35,
+    "col": 49,
+    "lay": 0
+  },
+  {
+    "label": "Siu Lang Shui",
+    "row": 39,
+    "col": 16,
+    "lay": 0
+  },
+  {
+    "label": "Cape D' Aguilar Supersite ",
+    "row": 21,
+    "col": 48,
+    "lay": 0
+  }
+]
+    }
+  ]
+}

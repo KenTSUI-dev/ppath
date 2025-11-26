@@ -22,6 +22,8 @@ def load_wrf_dataset(file_paths):
     if isinstance(file_paths, str):
         file_paths = [file_paths]
 
+    sorted_paths = sorted(file_paths)
+
     # specific options for WRF to ensure smooth concatenation
     # combine='nested' and concat_dim='Time' are standard for WRF output
     try:
@@ -32,6 +34,9 @@ def load_wrf_dataset(file_paths):
             parallel=False,
             chunks={'Time' : 1}
         )
+
+        ds = ds.sortby('Times', ascending=True)
+
         print(f"Successfully loaded {len(file_paths)} WRF files.")
         return ds
     except Exception as e:
@@ -41,22 +46,50 @@ def load_wrf_dataset(file_paths):
 
 def load_cmaq_dataset(file_paths):
     """
-    Reads multiple CMAQ (ACONC/APMDIAG) NetCDF files and concatenates them along the 'TSTEP' dimension.
+    Reads multiple CMAQ (ACONC/APMDIAG) NetCDF files, concatenates them along
+    the 'TSTEP' dimension, and sorts the result by the TFLAG variable.
     """
     if isinstance(file_paths, str):
         file_paths = [file_paths]
 
+    # 1. Initial sort by filename (good practice for performance, though not strictly required if sorting by data later)
+    sorted_paths = sorted(file_paths)
+
     try:
         # CMAQ uses TSTEP as the unlimited time dimension
         ds = xr.open_mfdataset(
-            sorted(file_paths),
+            sorted_paths,
             concat_dim='TSTEP',
             combine='nested',
             parallel=False,
             chunks={'TSTEP': 1}
         )
+
+        # 2. Sort by TFLAG if it exists
+        if 'TFLAG' in ds:
+            # TFLAG structure is typically: (TSTEP, VAR, DATE-TIME)
+            # We only need the flags from the first variable (VAR=0) to determine the timestep order.
+            tflag_ref = ds['TFLAG'].isel(VAR=0)
+
+            # Extract Date (YYYYDDD) and Time (HHMMSS)
+            # The dimension name 'DATE-TIME' has a hyphen, so we use dictionary unpacking
+            # to pass it as a keyword argument to isel.
+            # Index 0 = Date, Index 1 = Time
+            dates = tflag_ref.isel(**{'DATE-TIME': 0})
+            times = tflag_ref.isel(**{'DATE-TIME': 1})
+
+            # Create a composite integer key for sorting: YYYYDDDHHMMSS
+            # This is significantly faster than converting to datetime objects for sorting
+            sort_key = (dates.astype('int64') * 1000000) + times.astype('int64')
+
+            # Sort the dataset using this computed key
+            ds = ds.sortby(sort_key)
+
+            print("Dataset sorted by TFLAG.")
+
         print(f"Successfully loaded {len(file_paths)} CMAQ files.")
         return ds
+
     except Exception as e:
         print(f"Error loading multiple CMAQ files: {e}")
         raise
@@ -472,6 +505,400 @@ def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None):
     print("Done.")
 
 
+def extract_wrf_timeseries(input_source, output_path, station_cfg, variables_to_keep=None):
+    """
+    Extracts time-series data from WRF NetCDF files (or Dataset) for specific grid cells
+    (stations) and saves the result to a CSV file.
+
+    Includes automatic destaggering for U, V, and W grid variables.
+
+    Args:
+        input_source (str, list, or xr.Dataset): Path to file(s), list of paths,
+                                                 or an existing xarray Dataset.
+        output_path (str): Destination path for the CSV file.
+        station_cfg (list): List of dictionaries containing station info.
+                            Expected format: [{"label": "Name", "west_east": int, "south_north": int, "bottom_top": int}, ...]
+        variables_to_keep (list): List of variable names to process.
+    """
+
+    # 1. Load Dataset if input is not already an xarray Dataset
+    if isinstance(input_source, xr.Dataset):
+        ds = input_source
+    else:
+        ds = load_wrf_dataset(input_source)
+
+    print(f"\nProcessing Time Series Output: {output_path}")
+
+    # 2. Validate Variables
+    if variables_to_keep:
+        valid_vars = [v for v in variables_to_keep if v in ds.variables]
+        missing_vars = [v for v in variables_to_keep if v not in ds.variables]
+        if missing_vars:
+            print(f"Warning: The following requested variables were not found: {missing_vars}")
+    else:
+        exclude = ['Times', 'XLAT', 'XLONG', 'XTIME', 'XLAT_U', 'XLONG_U', 'XLAT_V', 'XLONG_V']
+        valid_vars = [v for v in ds.data_vars if v not in exclude]
+
+    # 3. Pre-process Time Variable
+    # We calculate the timeline ONCE for the whole dataset.
+    dt_index = None
+    if 'Times' in ds:
+        try:
+            raw_times = ds['Times'].values
+            dt_list = []
+            for t in raw_times:
+                if isinstance(t, bytes):
+                    t_str = t.decode('utf-8')
+                else:
+                    t_str = str(t)
+                dt_list.append(datetime.strptime(t_str, '%Y-%m-%d_%H:%M:%S'))
+            dt_index = np.array(dt_list)
+        except Exception as e:
+            print(f"Warning: Could not parse 'Times' variable. Error: {e}")
+
+    # Fallback to numeric time if parsing failed
+    if dt_index is None and 'XTIME' in ds:
+        dt_index = ds['XTIME'].values
+
+    # --- 4. Lazy Destaggering Logic ---
+    processed_vars = {}
+
+    # Mapping: Staggered Dimension -> Unstaggered (Mass) Dimension
+    stag_map = {
+        'west_east_stag': 'west_east',
+        'south_north_stag': 'south_north',
+        'bottom_top_stag': 'bottom_top'
+    }
+
+    print("Preparing variables (Lazy Destaggering)...")
+
+    for var_name in valid_vars:
+        da = ds[var_name]
+        dims = da.dims
+
+        # Check if variable has any staggered dimensions
+        for stag_dim, mass_dim in stag_map.items():
+            if stag_dim in dims:
+                # Destaggering formula: 0.5 * (val[i] + val[i+1])
+                # We use lazy slicing. Dask will only compute the slices needed for the
+                # specific stations requested later, not the whole grid.
+                da = 0.5 * (da.isel({stag_dim: slice(0, -1)}) +
+                            da.isel({stag_dim: slice(1, None)}))
+
+                # Rename dimension to match mass grid for uniform indexing
+                da = da.rename({stag_dim: mass_dim})
+
+        processed_vars[var_name] = da
+
+    # Create a temporary working dataset.
+    # We do NOT include coordinates here to prevent index alignment issues during selection.
+    working_ds = xr.Dataset(processed_vars)
+
+    # --- 5. Vectorized Index Preparation ---
+    valid_stations = []
+    we_idxs = []
+    sn_idxs = []
+    bt_idxs = []
+    labels = []
+
+    for i, stn in enumerate(station_cfg):
+        lbl = stn.get("label", f"Station_{i}")
+        we = int(stn.get("west_east", 0))
+        sn = int(stn.get("south_north", 0))
+        bt = int(stn.get("bottom_top", 0))
+
+        # Bounds Check (against mass grid dimensions)
+        if (we < ds.sizes['west_east'] and
+                sn < ds.sizes['south_north'] and
+                bt < ds.sizes['bottom_top']):
+
+            we_idxs.append(we)
+            sn_idxs.append(sn)
+            bt_idxs.append(bt)
+            labels.append(lbl)
+            valid_stations.append(stn)
+        else:
+            print(f"Skipping {lbl}: Indices (WE:{we}, SN:{sn}, BT:{bt}) out of bounds.")
+
+    if not valid_stations:
+        print(f"No valid stations found for {output_path}")
+        return
+
+    # Create DataArrays for Advanced Indexing
+    # This creates a new dimension 'station' in the result
+    idx_station = xr.DataArray(np.arange(len(valid_stations)), dims="station")
+    idx_we = xr.DataArray(we_idxs, dims="station")
+    idx_sn = xr.DataArray(sn_idxs, dims="station")
+    idx_bt = xr.DataArray(bt_idxs, dims="station")
+
+    # --- 6. Extract and Compute  ---
+    try:
+        print(f"Extracting data for {len(valid_stations)} stations...")
+
+        # Vectorized selection:
+        # This selects all stations at all time steps in one symbolic operation.
+        subset = working_ds.isel(
+            west_east=idx_we,
+            south_north=idx_sn,
+            bottom_top=idx_bt
+        )
+
+        # TRIGGER COMPUTE:
+        # This is the single heavy I/O operation. It reads only the required chunks.
+        subset_loaded = subset.compute()
+
+        # --- 7. Convert to DataFrame and Format ---
+        # Convert to DataFrame (fast, as data is now in memory)
+        df = subset_loaded.to_dataframe()
+
+        # Reset index to make 'station' and 'Time' accessible as columns
+        df = df.reset_index()
+
+        # Create Metadata DataFrame to map 'station' index back to Label/Coords
+        meta_df = pd.DataFrame({
+            'station': np.arange(len(valid_stations)),
+            'Station': labels,
+            'west_east': we_idxs,
+            'south_north': sn_idxs,
+            'bottom_top': bt_idxs
+        })
+
+        # Merge metadata
+        final_df = pd.merge(df, meta_df, on='station', how='left')
+
+        # Handle DateTime Mapping
+        # We assume the dataset is ordered by 'Time' (integer index)
+        if dt_index is not None:
+            # Check if we have 'Time' column (standard WRF)
+            if 'Time' in final_df.columns:
+                # Ensure we don't go out of bounds if dt_index is shorter than dataset (rare)
+                max_t = final_df['Time'].max()
+                if max_t < len(dt_index):
+                    # Map integer Time index to actual DateTime
+                    # We use a lookup array for speed
+                    final_df['DateTime'] = dt_index[final_df['Time'].values]
+                else:
+                    print("Warning: Time index mismatch. Using raw Time index.")
+                    final_df['DateTime'] = final_df['Time']
+            else:
+                # Fallback if 'Time' dim was dropped or named differently
+                final_df['DateTime'] = final_df.index
+
+        # Organize Columns
+        meta_cols = ['Station', 'DateTime', 'west_east', 'south_north', 'bottom_top']
+        data_cols = [c for c in valid_vars if c in final_df.columns]
+
+        # Ensure columns exist
+        avail_meta = [c for c in meta_cols if c in final_df.columns]
+        final_cols = avail_meta + data_cols
+
+        final_df = final_df[final_cols]
+        final_df = final_df.sort_values(by=avail_meta)
+
+        # Save
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        final_df.to_csv(output_path, index=False)
+        print(f"Saved time series to {output_path}")
+
+    except Exception as e:
+        print(f"Error during extraction: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def extract_cmaq_timeseries(input_source, output_path, station_cfg, variables_to_keep=None):
+    """
+    Extracts time-series data from CMAQ NetCDF files (or Dataset) for specific grid cells
+    (stations) and saves the result to a CSV file.
+
+    Args:
+        input_source (str, list, or xr.Dataset): Path to file(s), list of paths,
+                                                 or an existing xarray Dataset.
+        output_path (str): Destination path for the CSV file.
+        station_cfg (list): List of dictionaries containing station info.
+                            Expected format: [{"label": "Name", "row": int, "col": int, "lay": int}, ...]
+        variables_to_keep (list): List of variable names to process.
+    """
+
+    # 1. Load Dataset if input is not already an xarray Dataset
+    if isinstance(input_source, xr.Dataset):
+        ds = input_source
+    else:
+        ds = load_cmaq_dataset(input_source)
+
+    print(f"\nProcessing Time Series Output: {output_path}")
+
+    # 2. Validate Variables
+    # Ensure we don't try to extract TFLAG via the spatial extractor, handle it separately
+    if variables_to_keep:
+        valid_vars = [v for v in variables_to_keep if v in ds.variables]
+        missing = [v for v in variables_to_keep if v not in ds.variables]
+        if missing:
+            print(f"Warning: Missing variables: {missing}")
+    else:
+        valid_vars = [v for v in ds.data_vars if v != 'TFLAG']
+
+    # 3. Pre-calculate DateTimes (Vectorized)
+    # We calculate the timeline ONCE for the whole dataset, not per station.
+    dt_index = None
+
+    # Try TFLAG first (Standard CMAQ)
+    if 'TFLAG' in ds:
+        try:
+            # Extract TFLAG. It is usually (TSTEP, VAR, DATE-TIME).
+            # We load it immediately as it is small.
+            tflag = ds['TFLAG'].isel(VAR=0).values  # Shape: (TSTEP, 2) [Date, Time]
+
+            dates = tflag[:, 0]
+            times = tflag[:, 1]
+
+            dt_list = []
+            for d, t in zip(dates, times):
+                d_str = str(d)
+                t_str = str(t).zfill(6)
+                try:
+                    dt_list.append(datetime.strptime(f"{d_str}{t_str}", "%Y%j%H%M%S"))
+                except ValueError:
+                    dt_list.append(None)
+            dt_index = np.array(dt_list)
+        except Exception as e:
+            print(f"Warning: Could not parse 'TFLAG'. Error: {e}")
+
+    # Fallback to 'time' coordinate if TFLAG failed or missing
+    if dt_index is None and 'time' in ds.coords:
+        # If time is float hours (from previous processing), this might need adjustment,
+        # but usually, if it's a datetime64, this works.
+        dt_index = ds['time'].values
+
+    # 4. Prepare Vectorized Indices
+    # We create DataArrays for the indices to trigger Xarray's advanced indexing.
+    # This allows us to select (row[0], col[0], lay[0]), (row[1], col[1], lay[1]), etc.
+
+    valid_stations = []
+    rows = []
+    cols = []
+    lays = []
+    labels = []
+
+    for i, stn in enumerate(station_cfg):
+        r = int(stn.get("row", 0))
+        c = int(stn.get("col", 0))
+        l = int(stn.get("lay", 0))
+        lbl = stn.get("label", f"Station_{i}")
+
+        # Bounds check
+        if (r < ds.sizes['ROW'] and c < ds.sizes['COL'] and l < ds.sizes['LAY']):
+            rows.append(r)
+            cols.append(c)
+            lays.append(l)
+            labels.append(lbl)
+            valid_stations.append(stn)
+        else:
+            print(f"Skipping {lbl}: Indices out of bounds.")
+
+    if not valid_stations:
+        print(f"No valid stations found for {output_path}")
+        return
+
+    # Create Indexers with a new dimension 'station'
+    # This tells xarray: "For the 'station' dimension, use these specific R, C, L coordinates"
+    idx_station = xr.DataArray(np.arange(len(valid_stations)), dims="station")
+    idx_row = xr.DataArray(rows, dims="station")
+    idx_col = xr.DataArray(cols, dims="station")
+    idx_lay = xr.DataArray(lays, dims="station")
+
+    # 5. Extract Data (Lazy -> Compute)
+    try:
+        print(f"Extracting data for {len(valid_stations)} stations...")
+
+        # Select the subset of variables
+        # isel(ROW=..., COL=..., LAY=...) extracts the diagonal elements defined by the indices
+        # Resulting dims: (TSTEP, station)
+        subset = ds[valid_vars].isel(ROW=idx_row, COL=idx_col, LAY=idx_lay)
+
+        # TRIGGER COMPUTE: This is the only heavy IO operation.
+        # It loads the time series for all stations into memory at once.
+        subset_loaded = subset.compute()
+
+        # 6. Convert to DataFrame
+        # Since subset_loaded is in memory, this is instant.
+        # The dataframe will have a MultiIndex or index: (TSTEP, station)
+        df = subset_loaded.to_dataframe()
+
+        # Reset index to make TSTEP and station columns available
+        df = df.reset_index()
+
+        # 7. Post-Processing DataFrame
+
+        # Map the integer 'station' index back to the Label and original coordinates
+        # Create a lookup dictionary or dataframe
+        stn_meta = pd.DataFrame({
+            'station': np.arange(len(valid_stations)),
+            'Station': labels,
+            'Row': rows,
+            'Col': cols,
+            'Layer': lays
+        })
+
+        # Merge metadata into the main dataframe
+        final_df = pd.merge(df, stn_meta, on='station', how='left')
+
+        # Add DateTime column
+        # We assume the dataframe is ordered by TSTEP.
+        # If TSTEP is an index, we map it.
+        if dt_index is not None:
+            # Create a mapping from TSTEP index to Date
+            # Assuming TSTEP in df corresponds to 0, 1, 2... indices of dt_index
+            # If TSTEP is the actual value from NetCDF (0, 10000, etc), we might need rank.
+            # Safest way: If 'TSTEP' is in columns, use rank. If 'time' is in columns, use it.
+
+            if len(dt_index) == ds.sizes['TSTEP']:
+                # Create a temporary DF to map TSTEP index to DateTime
+                # We need to know how many timesteps per station
+                n_timesteps = len(dt_index)
+                n_stations = len(valid_stations)
+
+                # If the reset_index gave us 'TSTEP' (integer) or 'time'
+                if 'TSTEP' in final_df.columns:
+                    # Often TSTEP is just an enumeration or a large integer.
+                    # We rely on the sort order.
+                    final_df = final_df.sort_values(by=['station', 'TSTEP'])
+
+                    # Tile the dates for every station
+                    # Ensure the length matches
+                    if len(final_df) == n_timesteps * n_stations:
+                        final_df['DateTime'] = np.tile(dt_index, n_stations)
+                    else:
+                        # Fallback if lengths don't align (e.g. NaNs dropped)
+                        print("Warning: Data length mismatch. DateTime alignment might be off.")
+                        final_df['DateTime'] = final_df['TSTEP']
+                elif 'time' in final_df.columns:
+                    # If we have the time coord, use it, but prefer the calculated dt_index if 'time' is float
+                    final_df['DateTime'] = final_df['time']
+            else:
+                final_df['DateTime'] = final_df.index
+
+        # Organize Columns
+        meta_cols = ['Station', 'DateTime', 'Layer', 'Row', 'Col']
+        data_cols = [c for c in valid_vars if c in final_df.columns]
+
+        # Ensure columns exist
+        avail_meta = [c for c in meta_cols if c in final_df.columns]
+        final_cols = avail_meta + data_cols
+
+        final_df = final_df[final_cols]
+        final_df = final_df.sort_values(by=avail_meta)
+
+        # Save
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        final_df.to_csv(output_path, index=False)
+        print(f"Saved time series to {output_path}")
+
+    except Exception as e:
+        print(f"Error during extraction: {e}")
+        import traceback
+        traceback.print_exc()
+
 def execute_cmaq_pipeline(json_input):
     """
     Orchestrates the CMAQ processing pipeline: loading, calculation, merging, and output.
@@ -517,8 +944,6 @@ def execute_cmaq_pipeline(json_input):
         # CRITICAL: Drop 'VAR' dimension and 'TFLAG' variable.
         # ACONC usually has VAR=226, APMDIAG has VAR=39.
         # xarray cannot merge datasets if shared dimensions (VAR) have different lengths.
-        # Since the actual data variables (NO2, PM25AT) do not depend on 'VAR' in the xarray model,
-        # we can safely drop it to merge the data variables.
         if 'TFLAG' in ds:
             ds = ds.drop_vars('TFLAG')
         if 'VAR' in ds.dims:
@@ -545,11 +970,10 @@ def execute_cmaq_pipeline(json_input):
 
     # 5. Merge Everything into "Dataset A"
     # We merge the loaded datasets and the calculated variables.
-    # xr.merge aligns on shared dimensions (TSTEP, LAY, ROW, COL).
     datasets_to_merge = list(loaded_datasets.values()) + [calc_ds]
 
     print("\nMerging datasets...")
-    dataset_a = xr.merge(datasets_to_merge,compat='override')
+    dataset_a = xr.merge(datasets_to_merge, compat='override')
 
     # Restore Global Attributes (useful for projection info in process_cmaq_netcdf)
     if reference_attrs:
@@ -563,7 +987,7 @@ def execute_cmaq_pipeline(json_input):
         print(f"\nProcessing Voxel Output: {out_path}")
 
         # RE-INJECT TFLAG
-        # The existing `process_cmaq_netcdf` function relies on 'TFLAG' to calculate
+        # The process_cmaq_netcdf function relies on 'TFLAG' to calculate
         # the 'time' coordinate (hours since 1900). We attach the reference TFLAG we saved earlier.
         if reference_tflag is not None:
             dataset_a['TFLAG'] = reference_tflag
@@ -577,75 +1001,18 @@ def execute_cmaq_pipeline(json_input):
         sel_vars = ts_out["selected_var"]
         stations = ts_out["station"]
 
-        print(f"\nProcessing Time Series Output: {out_csv}")
-
-        all_station_data = []
-
-        # Pre-calculate DateTimes from TFLAG for the CSV
-        # We do this eagerly once so we can map it to the dataframe later
-        dt_index = None
+        # RE-INJECT TFLAG (Critical Step)
+        # The extract_cmaq_timeseries function needs TFLAG to generate the DateTime column.
+        # Since dataset_a had TFLAG dropped during merging, we must re-attach it here.
         if reference_tflag is not None:
-            tflag_vals = reference_tflag.values  # shape (TSTEP, 1, 2)
-            # Handle shape variations
-            if tflag_vals.ndim == 3:
-                dates = tflag_vals[:, 0, 0]
-                times = tflag_vals[:, 0, 1]
-            else:
-                dates = tflag_vals[:, 0]
-                times = tflag_vals[:, 1]
+            dataset_a['TFLAG'] = reference_tflag
 
-            dt_list = []
-            for d, t in zip(dates, times):
-                d_str = str(d)
-                t_str = str(t).zfill(6)
-                try:
-                    dt_list.append(datetime.strptime(f"{d_str}{t_str}", "%Y%j%H%M%S"))
-                except:
-                    dt_list.append(None)
-            dt_index = dt_list
-
-        for stn in stations:
-            stn_label = stn["label"]
-            r = stn["row"]
-            c = stn["col"]
-            l = stn["lay"]
-
-            try:
-                # Lazy selection of specific variables at specific 3D point
-                # Dimensions remaining: TSTEP
-                point_ds = dataset_a[sel_vars].isel(ROW=r, COL=c, LAY=l)
-
-                # Trigger computation -> convert to pandas DataFrame
-                df = point_ds.to_dataframe()
-
-                # Add metadata columns
-                df['Station'] = stn_label
-                df['Layer'] = l
-                df['Row'] = r
-                df['Col'] = c
-
-                # Assign calculated DateTimes if available
-                if dt_index is not None and len(df) == len(dt_index):
-                    df['DateTime'] = dt_index
-                else:
-                    # Fallback if TFLAG missing or length mismatch
-                    df['DateTime'] = df.index
-
-                all_station_data.append(df)
-
-            except Exception as e:
-                print(f"Error extracting station {stn_label}: {e}")
-
-        if all_station_data:
-            final_df = pd.concat(all_station_data)
-            # Ensure DateTime is the first column if possible
-            cols = ['Station', 'DateTime', 'Layer', 'Row', 'Col'] + sel_vars
-            # Filter cols to only those present
-            cols = [c for c in cols if c in final_df.columns]
-            final_df = final_df[cols]
-
-            final_df.to_csv(out_csv, index=False)
-            print(f"Saved time series to {out_csv}")
+        extract_cmaq_timeseries(
+            input_source=dataset_a,
+            output_path=out_csv,
+            station_cfg=stations,
+            variables_to_keep=sel_vars
+        )
 
     print("\n=== Pipeline Completed ===")
 
@@ -724,8 +1091,6 @@ def execute_wrf_pipeline(json_input):
         if missing_vars:
             print(f"Warning: The following variables were not found and skipped: {missing_vars}")
 
-        # ds_subset = dataset_a[valid_vars]
-
         # Call existing function to process and write NetCDF
         process_wrf_netcdf(dataset_a, out_path, variables_to_keep=valid_vars)
 
@@ -736,126 +1101,12 @@ def execute_wrf_pipeline(json_input):
         sel_vars = ts_out["selected_var"]
         stations = ts_out["station"]
 
-        print(f"\nProcessing Time Series Output: {out_csv}")
-
-        all_station_data = []
-
-        # Pre-process Time Variable for CSV readability
-        # WRF 'Times' is usually a char array (byte). We decode it once here.
-        dt_index = None
-        if 'Times' in dataset_a:
-            try:
-                raw_times = dataset_a['Times'].values
-                dt_list = []
-                for t in raw_times:
-                    # Decode bytes to string (e.g., "2025-11-17_00:00:00")
-                    t_str = t.decode('utf-8')
-                    dt_list.append(datetime.strptime(t_str, '%Y-%m-%d_%H:%M:%S'))
-                dt_index = dt_list
-            except Exception as e:
-                print(f"Warning: Could not parse 'Times' variable for CSV dates. {e}")
-
-        for stn in stations:
-            stn_label = stn["label"]
-            # WRF indices
-            we_idx = stn["west_east"]
-            sn_idx = stn["south_north"]
-            bt_idx = stn["bottom_top"]
-
-            try:
-                # Validate indices against dataset dimensions
-                if (we_idx >= dataset_a.sizes['west_east'] or
-                        sn_idx >= dataset_a.sizes['south_north'] or
-                        bt_idx >= dataset_a.sizes['bottom_top']):
-                    print(f"Skipping station {stn_label}: Indices out of bounds.")
-                    continue
-
-                # Lazy selection of specific variables at specific 3D point
-                # We select valid variables only
-                valid_vars = [v for v in sel_vars if v in dataset_a]
-
-                # Selection: isel handles integer indexing
-                point_ds = dataset_a[valid_vars].isel(
-                    west_east=we_idx,
-                    south_north=sn_idx,
-                    bottom_top=bt_idx
-                )
-
-                # Trigger computation -> convert to pandas DataFrame
-                df = point_ds.to_dataframe()
-
-                # Clean up DataFrame (remove multi-index if present, usually 'Time')
-                df = df.reset_index()
-
-                # Add metadata columns
-                df['Station'] = stn_label
-                df['west_east'] = we_idx
-                df['south_north'] = sn_idx
-                df['bottom_top'] = bt_idx
-
-                # Assign readable DateTime if we successfully parsed it earlier
-                if dt_index is not None and len(df) == len(dt_index):
-                    df['DateTime'] = dt_index
-
-                all_station_data.append(df)
-
-            except Exception as e:
-                print(f"Error extracting station {stn_label}: {e}")
-
-        # Concatenate and Save CSV
-        if all_station_data:
-            final_df = pd.concat(all_station_data)
-
-            # Organize columns: Metadata first, then data
-            meta_cols = ['Station', 'DateTime', 'west_east', 'south_north', 'bottom_top']
-            data_cols = [c for c in final_df.columns if c not in meta_cols and c in sel_vars]
-
-            # Filter meta_cols to ensure they exist in df
-            final_cols = [c for c in meta_cols if c in final_df.columns] + data_cols
-
-            final_df = final_df[final_cols]
-
-            final_df.to_csv(out_csv, index=False)
-            print(f"Saved time series to {out_csv}")
-        else:
-            print(f"No station data extracted for {out_csv}")
+        extract_wrf_timeseries(
+            input_source=dataset_a,
+            output_path=out_csv,
+            station_cfg=stations,
+            variables_to_keep=sel_vars
+        )
 
     print("\n=== WRF Pipeline Completed ===")
-
-# if __name__ == "__main__":
-#     # Initialize Argument Parser
-#     parser = argparse.ArgumentParser(
-#         description="WRF and CMAQ NetCDF Post-Processing Tool for ArcGIS Voxel Layers and Time Series CSVs."
-#     )
-#
-#     # Add Arguments
-#     parser.add_argument(
-#         "mode",
-#         choices=["wrf", "cmaq"],
-#         help="The processing mode: 'wrf' for WRF NetCDF files, 'cmaq' for CMAQ (ACONC/APMDIAG) files."
-#     )
-#
-#     parser.add_argument(
-#         "config_path",
-#         type=str,
-#         help="Path to the JSON configuration file."
-#     )
-#
-#     # Parse Arguments
-#     args = parser.parse_args()
-#
-#     # Validate Config Path
-#     if not os.path.exists(args.config_path):
-#         print(f"Error: Configuration file not found at {args.config_path}")
-#         sys.exit(1)
-#
-#     # Execute Pipeline based on mode
-#     try:
-#         if args.mode == "wrf":
-#             execute_wrf_pipeline(args.config_path)
-#         elif args.mode == "cmaq":
-#             execute_cmaq_pipeline(args.config_path)
-#     except Exception as e:
-#         print(f"Pipeline Failed: {e}")
-#         sys.exit(1)
 

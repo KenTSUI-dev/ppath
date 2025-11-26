@@ -2,7 +2,9 @@ import argparse
 import sys
 import os
 from .pp import execute_wrf_pipeline, execute_cmaq_pipeline
+from .utils import timing
 
+@timing
 def main():
     parser = argparse.ArgumentParser(
         description="WRF and CMAQ NetCDF Post-Processing Tool."
