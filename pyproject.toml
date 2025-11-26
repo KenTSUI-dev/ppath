@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppath"
+version = "0.1.0"
+description = "A tool to process WRF and CMAQ NetCDF files from PATH model for ArcGIS."
+authors = [{name = "Ken TSUI", email = "kentsui.dev@gmail.com"}]
+dependencies = [
+    "xarray",
+    "numpy",
+    "pandas",
+    "netCDF4",
+    "dask",
+    "pyproj"
+]
+requires-python = ">=3.8"
+
+[project.scripts]
+# This creates a command line command 'pppath'
+ppath = "ppath.cli:main"

@@ -1,0 +1,48 @@
+{
+  "source": [
+    {
+      "label": "WRF",
+      "input_nc": [
+        "D:/temp/AQMD/W0D3NK~H",
+        "D:/temp/AQMD/W0G49H~A",
+        "D:/temp/AQMD/W0IXPH~X",
+        "D:/temp/AQMD/W0IXPH~X"
+      ]
+    }
+  ],
+  "calc_var": [
+    {
+      "var": "actual_temperature",
+      "unit": "K",
+      "formula": "(WRF.T+300) * (((WRF.P+WRF.PB)/100000)**(287/1004))"
+    }
+  ],
+  "voxel_ouput": [
+    {
+      "output_nc": "D:/temp/AQMD/20251118_WRF_voxel.nc",
+      "selected_var": [
+        "U",
+        "V",
+        "actual_temperature"
+      ]
+    }
+  ],
+  "ts_ouput": [
+    {
+      "output_csv": "D:/temp/AQMD/20251118_WRF_stn.csv",
+      "selected_var": [
+        "U",
+        "V",
+        "actual_temperature"
+      ],
+      "station": [
+        {
+          "label": "Cape D' Aguilar Supersite Air Quality Monitoring Station",
+          "west_east": 139,
+          "south_north": 49,
+          "bottom_top": 0
+        }
+      ]
+    }
+  ]
+}
