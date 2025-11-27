@@ -21,7 +21,7 @@
 
    ```bash
    # Create the environment from the provided file
-   conda env create -f environment.yml --prune
+   conda env create -f environment.yml
    
    # Activate the environment
    conda activate ppath

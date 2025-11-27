@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+eggs/
+.eggs/
+*.egg
+*.egg-info/
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE-specific files
+.idea/
+*.iml
+
+# Test and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Other
+*.log
+*.sqlite3
+.DS_Store

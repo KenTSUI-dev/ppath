@@ -6,8 +6,7 @@ from datetime import datetime
 import json
 import re
 import pyproj
-import argparse
-import sys
+
 
 def calculate_hours_since_base(dt_obj, base_dt=datetime(1900, 1, 1)):
     """Helper to convert datetime to float hours since base date."""
@@ -22,8 +21,6 @@ def load_wrf_dataset(file_paths):
     if isinstance(file_paths, str):
         file_paths = [file_paths]
 
-    sorted_paths = sorted(file_paths)
-
     # specific options for WRF to ensure smooth concatenation
     # combine='nested' and concat_dim='Time' are standard for WRF output
     try:
@@ -35,6 +32,7 @@ def load_wrf_dataset(file_paths):
             chunks={'Time' : 1}
         )
 
+        # Times is a 2D variable in NetCDF and is auto decoded as 1D time array by xarray when loaded.
         ds = ds.sortby('Times', ascending=True)
 
         print(f"Successfully loaded {len(file_paths)} WRF files.")
@@ -52,20 +50,17 @@ def load_cmaq_dataset(file_paths):
     if isinstance(file_paths, str):
         file_paths = [file_paths]
 
-    # 1. Initial sort by filename (good practice for performance, though not strictly required if sorting by data later)
-    sorted_paths = sorted(file_paths)
-
     try:
         # CMAQ uses TSTEP as the unlimited time dimension
         ds = xr.open_mfdataset(
-            sorted_paths,
+            sorted(file_paths),
             concat_dim='TSTEP',
             combine='nested',
             parallel=False,
             chunks={'TSTEP': 1}
         )
 
-        # 2. Sort by TFLAG if it exists
+        # Sort by TFLAG if it exists
         if 'TFLAG' in ds:
             # TFLAG structure is typically: (TSTEP, VAR, DATE-TIME)
             # We only need the flags from the first variable (VAR=0) to determine the timestep order.
