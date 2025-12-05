@@ -333,9 +333,9 @@ def process_wrf_netcdf(input_source, output_path, variables_to_keep=None, layers
         print(f"Filtering output to {len(layers_to_keep)} selected layers...")
         try:
             ##Case 1
-            new_ds = new_ds.sel(level=layers_to_keep)
+            # new_ds = new_ds.sel(level=layers_to_keep)
             ##Case 2
-            # new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
+            new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
             ##Case 3
             # new_ds = new_ds.sel(level=layers_to_keep*2 if len(layers_to_keep)==1 else layers_to_keep)
 
@@ -511,9 +511,9 @@ def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None, layer
         print(f"Filtering output to {len(layers_to_keep)} selected layers...")
         try:
             ##Case 1
-            new_ds = new_ds.sel(level=layers_to_keep)
+            # new_ds = new_ds.sel(level=layers_to_keep)
             ##Case 2
-            # new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
+            new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
             ##Case 3
             # new_ds = new_ds.sel(level=layers_to_keep*2 if len(layers_to_keep)==1 else layers_to_keep)
         except KeyError as e:
