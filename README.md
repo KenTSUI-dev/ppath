@@ -97,7 +97,8 @@ The tool relies on a JSON configuration file. Below are the specifications for W
   "voxel_ouput": [
     {
       "output_nc": "D:/output/WRF_voxel.nc",
-      "selected_var": ["U", "V", "actual_temperature"]
+      "selected_var": ["U", "V", "actual_temperature"],
+      "selected_lay": [0, 1, 2, 3]
     }
   ],
   "ts_ouput": [
@@ -159,7 +160,8 @@ The tool relies on a JSON configuration file. Below are the specifications for W
   "voxel_ouput": [
     {
       "output_nc": "D:/output/CMAQ_voxel.nc",
-      "selected_var": ["NO2_", "PM25AT", "PM25_Total"]
+      "selected_var": ["NO2_", "PM25AT", "PM25_Total"], 
+      "selected_lay": [0, 1, 2, 3]
     }
   ],
   "ts_ouput": [
@@ -185,7 +187,7 @@ The tool relies on a JSON configuration file. Below are the specifications for W
 | --- | --- |
 | **source** | List of input files. `label` is used to reference variables in formulas (e.g., `WRF.T`). `input_nc` is a list of file paths. |
 | **calc_var** | Define new variables. `formula` supports Python math syntax. Use `Label.Variable` to reference data. |
-| **voxel_ouput** | Exports data to NetCDF formatted for ArcGIS Voxel Layers. `selected_var` determines which variables are written. |
+| **voxel_ouput** | Exports data to NetCDF formatted for ArcGIS Voxel Layers. <br> selected_var: List of variables to write. <br> selected_lay: (Optional) List of integer layer indices to include (e.g., [0, 1, 2])
 | **ts_ouput** | Extracts time-series data to CSV. |
 | **station** | Defines 3D grid points for extraction. <br>**WRF indices:** `west_east`, `south_north`, `bottom_top`. <br>**CMAQ indices:** `col`, `row`, `lay`. |
 

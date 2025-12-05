@@ -148,7 +148,7 @@ def calculate_new_variables(calc_config, loaded_datasets):
 
     return calculated_vars
 
-def process_wrf_netcdf(input_source, output_path, variables_to_keep=None):
+def process_wrf_netcdf(input_source, output_path, variables_to_keep=None, layers_to_keep=None):
     """
     Converts WRF NetCDF file(s) into an ArcGIS Voxel Layer compliant NetCDF.
 
@@ -157,6 +157,7 @@ def process_wrf_netcdf(input_source, output_path, variables_to_keep=None):
                                                  or an existing xarray Dataset.
         output_path (str): Destination path for the NetCDF file.
         variables_to_keep (list): List of variable names to process.
+        layers_to_keep (list): List of integer layer indices to include in output.
     """
 
     if isinstance(input_source, xr.Dataset):
@@ -327,6 +328,21 @@ def process_wrf_netcdf(input_source, output_path, variables_to_keep=None):
             new_ds[var_name].attrs = attrs
             new_ds[var_name].attrs['_FillValue'] = -999.0
 
+    # --- 4.5 Filter Vertical Layers (New Logic) ---
+    if layers_to_keep is not None:
+        print(f"Filtering output to {len(layers_to_keep)} selected layers...")
+        try:
+            ##Case 1
+            new_ds = new_ds.sel(level=layers_to_keep)
+            ##Case 2
+            # new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
+            ##Case 3
+            # new_ds = new_ds.sel(level=layers_to_keep*2 if len(layers_to_keep)==1 else layers_to_keep)
+
+        except KeyError as e:
+            print(f"Error: Selected layers {layers_to_keep} are out of bounds. {e}")
+            raise
+
     # --- 5. Write Output with Specific Encoding ---
     print(f"Writing to {output_path}...")
 
@@ -338,7 +354,7 @@ def process_wrf_netcdf(input_source, output_path, variables_to_keep=None):
     print("Done.")
 
 
-def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None):
+def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None, layers_to_keep=None):
     """
     Converts CMAQ (ACONC/APMDIAG) NetCDF file(s) or an existing xarray Dataset
     into an ArcGIS Voxel Layer compliant NetCDF.
@@ -348,6 +364,7 @@ def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None):
                                                  or an existing xarray Dataset.
         output_path (str): Destination path for the NetCDF file.
         variables_to_keep (list): List of variable names to process.
+        layers_to_keep (list): List of integer layer indices to include in output.
     """
 
     if isinstance(input_source, xr.Dataset):
@@ -488,6 +505,20 @@ def process_cmaq_netcdf(input_source, output_path, variables_to_keep=None):
             new_ds[var_name] = (new_dims, src_var.values)
             new_ds[var_name].attrs = src_var.attrs
             new_ds[var_name].attrs['_FillValue'] = -999.0
+
+    # --- 4.5 Filter Vertical Layers (New Logic) ---
+    if layers_to_keep is not None:
+        print(f"Filtering output to {len(layers_to_keep)} selected layers...")
+        try:
+            ##Case 1
+            new_ds = new_ds.sel(level=layers_to_keep)
+            ##Case 2
+            # new_ds = new_ds.sel(level=layers_to_keep[0] if len(layers_to_keep)==1 else layers_to_keep)
+            ##Case 3
+            # new_ds = new_ds.sel(level=layers_to_keep*2 if len(layers_to_keep)==1 else layers_to_keep)
+        except KeyError as e:
+            print(f"Error: Selected layers {layers_to_keep} are out of bounds. {e}")
+            raise
 
     # --- 5. Write Output with Specific Encoding ---
     print(f"Writing to {output_path}...")
@@ -978,6 +1009,7 @@ def execute_cmaq_pipeline(json_input):
     for v_out in config.get("voxel_ouput", []):
         out_path = v_out["output_nc"]
         sel_vars = v_out["selected_var"]
+        sel_lay = v_out.get("selected_lay", None)
 
         print(f"\nProcessing Voxel Output: {out_path}")
 
@@ -988,7 +1020,7 @@ def execute_cmaq_pipeline(json_input):
             dataset_a['TFLAG'] = reference_tflag
 
         # Call existing function
-        process_cmaq_netcdf(dataset_a, out_path, variables_to_keep=sel_vars)
+        process_cmaq_netcdf(dataset_a, out_path, variables_to_keep=sel_vars, layers_to_keep=sel_lay)
 
     # 7. Handle Time Series Output
     for ts_out in config.get("ts_ouput", []):
@@ -1075,6 +1107,7 @@ def execute_wrf_pipeline(json_input):
     for v_out in config.get("voxel_ouput", []):
         out_path = v_out["output_nc"]
         sel_vars = v_out["selected_var"]
+        sel_lay = v_out.get("selected_lay", None)
 
         print(f"\nProcessing Voxel Output: {out_path}")
 
@@ -1087,7 +1120,7 @@ def execute_wrf_pipeline(json_input):
             print(f"Warning: The following variables were not found and skipped: {missing_vars}")
 
         # Call existing function to process and write NetCDF
-        process_wrf_netcdf(dataset_a, out_path, variables_to_keep=valid_vars)
+        process_wrf_netcdf(dataset_a, out_path, variables_to_keep=valid_vars, layers_to_keep=sel_lay)
 
     # 7. Handle Time Series Output
     # Note: Using key 'ts_ouput' as per the prompt's JSON structure
