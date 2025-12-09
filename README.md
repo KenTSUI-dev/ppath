@@ -98,7 +98,8 @@ The tool relies on a JSON configuration file. Below are the specifications for W
     {
       "output_nc": "D:/output/WRF_voxel.nc",
       "selected_var": ["U", "V", "actual_temperature"],
-      "selected_lay": [0, 1, 2, 3]
+      "selected_lay": [0, 1, 2],
+      "epsg": 102100
     }
   ],
   "ts_ouput": [
@@ -160,8 +161,9 @@ The tool relies on a JSON configuration file. Below are the specifications for W
   "voxel_ouput": [
     {
       "output_nc": "D:/output/CMAQ_voxel.nc",
-      "selected_var": ["NO2_", "PM25AT", "PM25_Total"], 
-      "selected_lay": [0, 1, 2, 3]
+      "selected_var": ["NO2_", "PM25AT", "PM25_Total"],
+      "selected_lay": [0],
+      "epsg": 102100
     }
   ],
   "ts_ouput": [
@@ -187,10 +189,11 @@ The tool relies on a JSON configuration file. Below are the specifications for W
 | --- | --- |
 | **source** | List of input files. `label` is used to reference variables in formulas (e.g., `WRF.T`). `input_nc` is a list of file paths. |
 | **calc_var** | Define new variables. `formula` supports Python math syntax. Use `Label.Variable` to reference data. |
-| **voxel_ouput** | Exports data to NetCDF formatted for ArcGIS Voxel Layers. <br> selected_var: List of variables to write. <br> selected_lay: (Optional) List of integer layer indices to include (e.g., [0, 1, 2])
+| **voxel_ouput** | Exports data to NetCDF formatted for ArcGIS Voxel Layers. `selected_var` determines which variables are written. |
+| **selected_lay** | (Optional) List of integer indices indicating which vertical layers to include in the voxel output. If omitted, all layers are included. **Special Case (Single Layer):** If only one layer is selected (e.g., `[0]`), the tool automatically duplicates this layer to create a "volume" of depth 2. This is done because many Voxel Layer visualization tools require a 3D volume rather than a flat 2D slice. |
+| **epsg** | (Optional) The EPSG code used to determine the output Coordinate Reference System (CRS) of the voxel layer. If not specified, it defaults to `102100` (Web Mercator). |
 | **ts_ouput** | Extracts time-series data to CSV. |
-| **station** | Defines 3D grid points for extraction. <br>**WRF indices:** `west_east`, `south_north`, `bottom_top`. <br>**CMAQ indices:** `col`, `row`, `lay`. |
-
+| **station** | Defines 3D grid points for extraction. **WRF indices:** `west_east`, `south_north`, `bottom_top`. **CMAQ indices:** `col`, `row`, `lay`. |
 
 ## Technical Notes
 

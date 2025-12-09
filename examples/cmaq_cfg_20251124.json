@@ -83,7 +83,8 @@
         "O3_",
         "SO2_",
         "CO_"
-      ]
+      ],
+      "epsg": 4326
     },
     {
       "output_nc": "D:/temp/AQMD/20251124_CCTM.benchmark_voxel_twoLay.nc",

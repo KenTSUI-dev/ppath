@@ -198,7 +198,8 @@
         "V",
         "actual_temperature"
       ],
-      "selected_lay": [0,1]
+      "selected_lay": [0,1],
+      "epsg": 4326
     },
     {
       "output_nc": "D:/temp/AQMD/20251124_WRF_voxel_botLay.nc",
